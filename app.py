@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
+import os
 
 app = Flask(__name__)
 
@@ -13,9 +14,12 @@ def get_rendered_content(url):
   chrome_options.add_argument("--no-sandbox")
   chrome_options.add_argument("--disable-dev-shm-usage")
 
+  selenium_host = os.environ.get('SELENIUM_HOST', 'localhost')
+  selenium_port = os.environ.get('SELENIUM_PORT', '4444')
+
   # Connect to the Selenium server running in the Docker container
   driver = webdriver.Remote(
-      command_executor='http://localhost:4444/wd/hub',
+      command_executor=f'http://{selenium_host}:{selenium_port}/wd/hub',
       options=chrome_options
   )
 
@@ -42,4 +46,4 @@ def fetch_url():
     return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=6060)
+  app.run(host='0.0.0.0', port=5000)
